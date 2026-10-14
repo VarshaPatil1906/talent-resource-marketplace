@@ -1,0 +1,71 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: talent-resource-marketplace
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:default}
+  mvc:
+    static-path-pattern: /**
+  web:
+    resources:
+      static-locations: classpath:/static/,file:./frontend/
+
+---
+# Default Profile (Standalone In-Memory H2 in MySQL Compatibility Mode)
+spring:
+  config:
+    activate:
+      on-profile: default
+  datasource:
+    url: jdbc:h2:mem:talent_marketplace;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1;DEFAULT_NULL_ORDERING=HIGH
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+---
+# MySQL Profile (Production & Docker Compose)
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:talent_marketplace}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USER:talent_user}
+    password: ${DB_PASSWORD:talent_pass}
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+---
+# Security & App Configuration
+app:
+  security:
+    manager-password: ${SECURITY_MANAGER_PASSWORD:password123}
+    recruiter-password: ${SECURITY_RECRUITER_PASSWORD:password123}
+    admin-password: ${SECURITY_ADMIN_PASSWORD:password123}
+  capacity:
+    default-max-percent: 100
+  ai:
+    model: ${AI_MODEL_NAME:simulated-gpt-4o}
+    api-key: ${AI_API_KEY:}
+    mode: ${AI_AGENT_MODE:simulated} # 'simulated' or 'live'

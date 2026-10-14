@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-Driven Talent and Resource Allocation Marketplace - Real-time candidate scoring, availability engine, transactional approval workflow, and explainable AI recommendations.">
+    <title>Talent & Resource Allocation Marketplace</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="brand">
+                <div class="brand-logo">TM</div>
+                <div class="brand-info">
+                    <h1>TalentMarketplace <span class="badge badge-accent">AI-Driven</span></h1>
+                    <span class="brand-subtitle">Resource Allocation & Staffing Intelligence Platform</span>
+                </div>
+            </div>
+            <div class="top-nav-actions">
+                <div class="auth-box">
+                    <span class="auth-label">Active Role:</span>
+                    <select id="userRoleSelect" class="form-control select-sm">
+                        <option value="manager" selected>Manager (manager / password123)</option>
+                        <option value="recruiter">Recruiter (recruiter / password123)</option>
+                        <option value="admin">Admin (admin / password123)</option>
+                    </select>
+                </div>
+                <div class="system-status">
+                    <span class="status-indicator"></span>
+                    <span>Backend Active</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="main-layout">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar">
+                <nav class="nav-menu">
+                    <a href="#screen-demand-intake" class="nav-item active" data-screen="screen-demand-intake">
+                        <span class="nav-icon">📝</span>
+                        <span class="nav-label">1. Demand Intake</span>
+                    </a>
+                    <a href="#screen-skills-matrix" class="nav-item" data-screen="screen-skills-matrix">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-label">2. Skills Matrix</span>
+                    </a>
+                    <a href="#screen-resource-search" class="nav-item" data-screen="screen-resource-search">
+                        <span class="nav-icon">🔍</span>
+                        <span class="nav-label">3. Resource Search</span>
+                    </a>
+                    <a href="#screen-candidate-comparison" class="nav-item" data-screen="screen-candidate-comparison">
+                        <span class="nav-icon">⚖️</span>
+                        <span class="nav-label">4. Candidate Comparison</span>
+                    </a>
+                    <a href="#screen-allocation-approval" class="nav-item" data-screen="screen-allocation-approval">
+                        <span class="nav-icon">✅</span>
+                        <span class="nav-label">5. Allocation Approval</span>
+                        <span id="pendingBadge" class="nav-badge">0</span>
+                    </a>
+                    <a href="#screen-dashboard" class="nav-item" data-screen="screen-dashboard">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-label">6. Utilization Dashboard</span>
+                    </a>
+                    <a href="#screen-ai-assistant" class="nav-item" data-screen="screen-ai-assistant">
+                        <span class="nav-icon">🤖</span>
+                        <span class="nav-label">7. AI Staffing Agent</span>
+                        <span class="badge badge-ai-pill">Simulated</span>
+                    </a>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <div class="engine-badge">
+                        <div class="engine-title">Deterministic Engine</div>
+                        <div class="engine-desc">100% Database Grounded</div>
+                        <div class="engine-weights">Skills 40% | Prof 30% | Cap 20% | Loc 10%</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Screen Content Container -->
+            <main class="content-area">
+                <!-- Toast Notification Container -->
+                <div id="toastContainer" class="toast-container"></div>
+
+                <!-- SCREEN 1: Demand Intake Form -->
+                <section id="screen-demand-intake" class="screen-view active">
+                    <div class="screen-header">
+                        <div>
+                            <h2>Project Demand Intake</h2>
+                            <p class="subtitle">Submit new talent requirements with explicit mandatory skills and minimum proficiency levels.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid-2-col">
+                        <!-- Demand Form Card -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>New Demand Specification</h3>
+                            </div>
+                            <div class="card-body">
+                                <form id="demandIntakeForm">
+                                    <div class="form-group">
+                                        <label for="projectName">Project Name <span class="required">*</span></label>
+                                        <input type="text" id="projectName" class="form-control" placeholder="e.g. Core Payment Engine Refactoring" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label for="projectRole">Target Role <span class="required">*</span></label>
+                                            <input type="text" id="projectRole" class="form-control" placeholder="e.g. Senior Backend Engineer" required>
+                                        </div>
+                                        <div class="form-group flex-1">
+                                            <label for="projectLocation">Location <span class="required">*</span></label>
+                                            <select id="projectLocation" class="form-control" required>
+                                                <option value="London">London</option>
+                                                <option value="New York">New York</option>
+                                                <option value="Bangalore">Bangalore</option>
+                                                <option value="San Francisco">San Francisco</option>
+                                                <option value="Remote">Remote</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label for="projectStartDate">Start Date <span class="required">*</span></label>
+                                            <input type="date" id="projectStartDate" class="form-control" required>
+                                        </div>
+                                        <div class="form-group flex-1">
+                                            <label for="projectEndDate">End Date <span class="required">*</span></label>
+                                            <input type="date" id="projectEndDate" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group flex-1">
+                                            <label for="projectAllocation">Allocation Capacity (%) <span class="required">*</span></label>
+                                            <input type="number" id="projectAllocation" class="form-control" min="1" max="100" value="100" required>
+                                        </div>
+                                        <div class="form-group flex-1">
+                                            <label for="projectPriority">Priority <span class="required">*</span></label>
+                                            <select id="projectPriority" class="form-control" required>
+                                                <option value="CRITICAL">CRITICAL</option>
+                                                <option value="HIGH" selected>HIGH</option>
+                                                <option value="MEDIUM">MEDIUM</option>
+                                                <option value="LOW">LOW</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <!-- Required Skills Section -->
+                                    <div class="skills-spec-section">
+                                        <div class="skills-spec-header">
+                                            <label>Required Skills & Minimum Proficiencies</label>
+                                            <button type="button" id="btnAddSkillRequirement" class="btn btn-sm btn-secondary">+ Add Skill</button>
+                                        </div>
+                                        <div id="demandSkillsList" class="demand-skills-list">
+                                            <!-- Dynamically appended skill rows -->
+                                        </div>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit" id="btnSubmitDemand" class="btn btn-primary">Create Project Demand</button>
+                                        <button type="reset" class="btn btn-outline">Reset</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Active Demands Overview -->
+                        <div class="card">
+                            <div class="card-header flex-between">
+                                <h3>Existing Project Demands</h3>
+                                <button id="btnRefreshDemands" class="btn btn-sm btn-outline">↻ Refresh</button>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-container">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Project & Role</th>
+                                                <th>Window</th>
+                                                <th>Loc / Cap</th>
+                                                <th>Priority</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="demandsTableBody">
+                                            <tr><td colspan="6" class="text-center py-4">Loading demands...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SCREEN 2: Employee Skills Matrix -->
+                <section id="screen-skills-matrix" class="screen-view">
+                    <div class="screen-header flex-between">
+                        <div>
+                            <h2>Employee Skills Matrix</h2>
+                            <p class="subtitle">Search, inspect proficiency levels (1 to 5), and review validation dates across synthetic resources.</p>
+                        </div>
+                        <button id="btnOpenAddSkillModal" class="btn btn-primary">+ Add Employee Skill</button>
+                    </div>
+
+                    <!-- Filter Bar -->
+                    <div class="filter-bar">
+                        <div class="filter-item">
+                            <label>Department:</label>
+                            <select id="matrixFilterDept" class="form-control">
+                                <option value="">All Departments</option>
+                                <option value="Engineering">Engineering</option>
+                                <option value="Data & AI">Data & AI</option>
+                                <option value="Cloud & Platform">Cloud & Platform</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <label>Status:</label>
+                            <select id="matrixFilterStatus" class="form-control">
+                                <option value="">All Statuses</option>
+                                <option value="ACTIVE" selected>ACTIVE</option>
+                                <option value="ON_LEAVE">ON_LEAVE</option>
+                                <option value="INACTIVE">INACTIVE</option>
+                            </select>
+                        </div>
+                        <div class="filter-item flex-1">
+                            <label>Quick Search:</label>
+                            <input type="text" id="matrixSearchInput" class="form-control" placeholder="Search by name, skill or employee code...">
+                        </div>
+                    </div>
+
+                    <!-- Employees Table Card -->
+                    <div class="card">
+                        <div class="card-body p-0">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Employee</th>
+                                            <th>Department</th>
+                                            <th>Location</th>
+                                            <th>Status</th>
+                                            <th>Skills & Verified Proficiencies</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="skillsMatrixTableBody">
+                                        <tr><td colspan="7" class="text-center py-4">Loading skills matrix...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SCREEN 3: Resource Search and Ranking -->
+                <section id="screen-resource-search" class="screen-view">
+                    <div class="screen-header">
+                        <div>
+                            <h2>Resource Search & Availability Ranking</h2>
+                            <p class="subtitle">Query talent by required capacity, skill proficiency, and dates using inclusive-date availability calculations.</p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form id="resourceSearchForm" class="filter-grid">
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="date" id="searchStartDate" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="date" id="searchEndDate" class="form-control">
+                                </div>
+                                <div class="form-group">
+                                    <label>Required Capacity (%)</label>
+                                    <input type="number" id="searchCapacity" class="form-control" min="1" max="100" value="50">
+                                </div>
+                                <div class="form-group">
+                                    <label>Skill Filter</label>
+                                    <select id="searchSkillSelect" class="form-control">
+                                        <option value="">Any Skill</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Min Proficiency</label>
+                                    <select id="searchMinProf" class="form-control">
+                                        <option value="1">Level 1+ (Beginner)</option>
+                                        <option value="2">Level 2+ (Working)</option>
+                                        <option value="3" selected>Level 3+ (Competent)</option>
+                                        <option value="4">Level 4+ (Advanced)</option>
+                                        <option value="5">Level 5 (Expert)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary w-full">Search Resources</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Search Results -->
+                    <div id="resourceSearchResults" class="resource-cards-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+                <!-- SCREEN 4: Candidate Comparison -->
+                <section id="screen-candidate-comparison" class="screen-view">
+                    <div class="screen-header">
+                        <div>
+                            <h2>Candidate Comparison & Scoring Breakdown</h2>
+                            <p class="subtitle">Side-by-side evaluation of candidates against a demand with deterministic score breakdowns (0 to 100).</p>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="form-row align-center">
+                                <div class="form-group flex-2">
+                                    <label for="comparisonDemandSelect">Select Target Project Demand:</label>
+                                    <select id="comparisonDemandSelect" class="form-control">
+                                        <option value="">Choose a demand to evaluate candidates...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group flex-1">
+                                    <label>&nbsp;</label>
+                                    <button id="btnRunComparison" class="btn btn-primary w-full">Evaluate Candidates</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="comparisonContainer" class="comparison-grid">
+                        <div class="empty-state">
+                            <div class="empty-icon">⚖️</div>
+                            <h3>Select a Demand to Compare Candidates</h3>
+                            <p>Choose an open project demand above to see ranked candidate cards and side-by-side breakdown.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SCREEN 5: Allocation Approval Workflow -->
+                <section id="screen-allocation-approval" class="screen-view">
+                    <div class="screen-header flex-between">
+                        <div>
+                            <h2>Allocation Approval & Governance Workflow</h2>
+                            <p class="subtitle">Manager-authorized commitment review. Revalidates demand status, skills, and committed capacity at approval time.</p>
+                        </div>
+                        <div class="auth-pill">
+                            <span class="auth-dot"></span>
+                            <span>Manager Role Required for Commit</span>
+                        </div>
+                    </div>
+
+                    <!-- Pending Allocations -->
+                    <div class="card mb-4">
+                        <div class="card-header flex-between bg-warning-subtle">
+                            <h3>Pending Allocations Awaiting Manager Approval</h3>
+                            <button id="btnRefreshAllocations" class="btn btn-sm btn-outline">↻ Refresh</button>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Resource</th>
+                                            <th>Project Demand</th>
+                                            <th>Period</th>
+                                            <th>Capacity %</th>
+                                            <th>Requested</th>
+                                            <th>Actions (Manager Only)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="pendingAllocationsTableBody">
+                                        <tr><td colspan="7" class="text-center py-4">No pending allocation requests.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Approved & Cancelled Allocations -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Committed Allocations & Audit Log</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Resource</th>
+                                            <th>Project Demand</th>
+                                            <th>Period</th>
+                                            <th>Committed %</th>
+                                            <th>Status</th>
+                                            <th>Approved By</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="committedAllocationsTableBody">
+                                        <tr><td colspan="8" class="text-center py-4">Loading allocations...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SCREEN 6: Utilization and Skill-Gap Dashboard -->
+                <section id="screen-dashboard" class="screen-view">
+                    <div class="screen-header flex-between">
+                        <div>
+                            <h2>Utilization & Skill-Gap Dashboard</h2>
+                            <p class="subtitle">Real-time capacity tracking, unstaffed demand alerts, and organizational talent deficit metrics.</p>
+                        </div>
+                        <button id="btnRefreshDashboard" class="btn btn-sm btn-outline">↻ Refresh Dashboard</button>
+                    </div>
+
+                    <!-- KPI Cards Row -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-label">Average Utilization</div>
+                            <div id="kpiUtilization" class="kpi-value">--%</div>
+                            <div class="kpi-subtext">Across active resources</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Active Headcount</div>
+                            <div id="kpiActiveEmployees" class="kpi-value">--</div>
+                            <div class="kpi-subtext">Qualified synthetic employees</div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-label">Open Demands</div>
+                            <div id="kpiOpenDemands" class="kpi-value">--</div>
+                            <div class="kpi-subtext">Active hiring/staffing requests</div>
+                        </div>
+                        <div class="kpi-card kpi-warning">
+                            <div class="kpi-label">Unstaffed Demands</div>
+                            <div id="kpiUnstaffedDemands" class="kpi-value">--</div>
+                            <div class="kpi-subtext">Zero eligible candidates matching</div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2-col mt-4">
+                        <!-- Department Utilization -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Utilization by Department</h3>
+                            </div>
+                            <div class="card-body" id="departmentUtilizationContainer">
+                                Loading department metrics...
+                            </div>
+                        </div>
+
+                        <!-- Skill Gaps Grouped by Category -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Skill Gaps & Talent Deficits</h3>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-container">
+                                    <table class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Category</th>
+                                                <th>Skill</th>
+                                                <th>Required</th>
+                                                <th>Qualified (L3+)</th>
+                                                <th>Deficit Gap</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="skillGapsTableBody">
+                                            <tr><td colspan="5" class="text-center py-4">Loading skill gaps...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Individual Employee Bench / Utilization List -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h3>Resource Bench Capacity & Committed Allocations</h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-container">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Resource</th>
+                                            <th>Department</th>
+                                            <th>Location</th>
+                                            <th>Committed Capacity</th>
+                                            <th>Bench Available</th>
+                                            <th>Active Projects</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="employeeUtilizationTableBody">
+                                        <tr><td colspan="7" class="text-center py-4">Loading employee utilization...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SCREEN 7: AI Staffing Assistant (Simulated AI) -->
+                <section id="screen-ai-assistant" class="screen-view">
+                    <!-- Prominent Simulation Badge -->
+                    <div class="ai-banner">
+                        <div class="ai-banner-icon">🤖</div>
+                        <div class="ai-banner-text">
+                            <strong>Simulated AI Staffing Agent — no live LLM connected</strong>
+                            <p>This agent operates through 6 controlled backend tools using strictly deterministic database facts. It validates evidence, explains matches and gaps, suggests training paths, and submits proposals for human manager approval.</p>
+                        </div>
+                    </div>
+
+                    <div class="screen-header">
+                        <div>
+                            <h2>Goal-Driven Staffing Agent</h2>
+                            <p class="subtitle">Direct the autonomous staffing workflow to discover candidates, verify evidence, and formulate actionable proposals.</p>
+                        </div>
+                    </div>
+
+                    <!-- AI Goal Input Card -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form id="aiAgentForm">
+                                <div class="form-row">
+                                    <div class="form-group flex-1">
+                                        <label for="aiDemandSelect">Target Project Demand <span class="required">*</span></label>
+                                        <select id="aiDemandSelect" class="form-control" required>
+                                            <option value="">Select open demand...</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group flex-2">
+                                        <label for="aiGoalInput">Staffing Objective / Strategic Goal <span class="required">*</span></label>
+                                        <input type="text" id="aiGoalInput" class="form-control" 
+                                               value="Find the highest scoring eligible backend engineer with full capacity and verified proficiency" 
+                                               required>
+                                    </div>
+                                </div>
+                                <div class="form-actions mt-2">
+                                    <button type="submit" id="btnExecuteAiWorkflow" class="btn btn-primary">⚡ Execute Agentic Staffing Workflow</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- AI Output Area -->
+                    <div id="aiOutputContainer" class="ai-output-container hidden">
+                        <!-- Step-by-Step Tool Execution Trace -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-dark-subtle">
+                                <h3>Controlled Backend Tool Execution Trace (6 Tools)</h3>
+                            </div>
+                            <div class="card-body">
+                                <ul id="aiTraceList" class="tool-trace-list">
+                                    <!-- Tool traces -->
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Top Recommendation Card -->
+                        <div id="aiTopRecommendationCard" class="card mb-4">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Targeted Training Pathways -->
+                        <div id="aiTrainingContainer" class="card mb-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+
+        <!-- Audit History Modal -->
+        <div id="historyModal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <h3>Allocation Audit History Log</h3>
+                    <button id="btnCloseHistoryModal" class="btn-close">&times;</button>
+                </div>
+                <div class="modal-body p-0">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                                <th>Changed By</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <tr><td colspan="4" class="text-center py-4">Loading history...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Employee Skill Modal -->
+        <div id="addSkillModal" class="modal-overlay hidden">
+            <div class="modal-box modal-sm">
+                <div class="modal-header">
+                    <h3>Add / Update Employee Skill</h3>
+                    <button id="btnCloseAddSkillModal" class="btn-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addSkillForm">
+                        <div class="form-group">
+                            <label>Employee <span class="required">*</span></label>
+                            <select id="modalEmployeeSelect" class="form-control" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Skill <span class="required">*</span></label>
+                            <select id="modalSkillSelect" class="form-control" required></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Proficiency Level (1 to 5) <span class="required">*</span></label>
+                            <select id="modalProficiencySelect" class="form-control" required>
+                                <option value="1">Level 1 - Fundamental Awareness</option>
+                                <option value="2">Level 2 - Novice / Working Knowledge</option>
+                                <option value="3" selected>Level 3 - Intermediate / Competent</option>
+                                <option value="4">Level 4 - Advanced / Specialist</option>
+                                <option value="5">Level 5 - Expert / Architect</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Assessment Validation Date</label>
+                            <input type="date" id="modalValidationDate" class="form-control">
+                        </div>
+                        <div class="form-actions mt-3">
+                            <button type="submit" class="btn btn-primary">Save Skill Assessment</button>
+                            <button type="button" id="btnCancelAddSkillModal" class="btn btn-outline">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

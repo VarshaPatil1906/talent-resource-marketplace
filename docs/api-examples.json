@@ -1,0 +1,126 @@
+{
+  "info": {
+    "name": "Talent & Resource Allocation Marketplace API Collection",
+    "description": "Comprehensive REST API request examples for the Talent Marketplace platform",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Employees - Get All",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": { "raw": "http://localhost:8080/api/employees" }
+      }
+    },
+    {
+      "name": "2. Employees - Add Skill Assessment",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"skillId\": 1,\n  \"proficiencyLevel\": 5,\n  \"lastValidatedAt\": \"2026-10-14\"\n}"
+        },
+        "url": { "raw": "http://localhost:8080/api/employees/1/skills" }
+      }
+    },
+    {
+      "name": "3. Demands - Create Project Demand",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"projectName\": \"Core Payment Engine Refactoring\",\n  \"role\": \"Senior Backend Engineer\",\n  \"location\": \"London\",\n  \"startDate\": \"2026-11-01\",\n  \"endDate\": \"2027-02-28\",\n  \"allocationPercent\": 100,\n  \"priority\": \"HIGH\",\n  \"status\": \"OPEN\",\n  \"requiredSkills\": [\n    { \"skillName\": \"Java\", \"minProficiency\": 4, \"mandatory\": true },\n    { \"skillName\": \"Spring Boot\", \"minProficiency\": 3, \"mandatory\": true },\n    { \"skillName\": \"MySQL\", \"minProficiency\": 3, \"mandatory\": false }\n  ]\n}"
+        },
+        "url": { "raw": "http://localhost:8080/api/demands" }
+      }
+    },
+    {
+      "name": "4. Demands - Evaluate Candidate Recommendations",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": { "raw": "http://localhost:8080/api/demands/1/recommendations" }
+      }
+    },
+    {
+      "name": "5. Resources - Search Available Capacity",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8080/api/resources/available?startDate=2026-11-01&endDate=2027-02-28&minCapacityPercent=50"
+        }
+      }
+    },
+    {
+      "name": "6. Allocations - Create Request (Pending)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"employeeId\": 1,\n  \"demandId\": 1,\n  \"startDate\": \"2026-11-01\",\n  \"endDate\": \"2027-02-28\",\n  \"allocationPercent\": 100\n}"
+        },
+        "url": { "raw": "http://localhost:8080/api/allocations" }
+      }
+    },
+    {
+      "name": "7. Allocations - Manager Approve (Protected)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Basic bWFuYWdlcjpwYXNzd29yZDEyMw==" }
+        ],
+        "url": { "raw": "http://localhost:8080/api/allocations/3/approve" }
+      }
+    },
+    {
+      "name": "8. Allocations - Manager Cancel (Release Capacity)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Basic bWFuYWdlcjpwYXNzd29yZDEyMw==" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"reason\": \"Project scope deferred by client\"\n}"
+        },
+        "url": { "raw": "http://localhost:8080/api/allocations/1/cancel" }
+      }
+    },
+    {
+      "name": "9. Reports - Utilization Dashboard",
+      "request": {
+        "method": "GET",
+        "url": { "raw": "http://localhost:8080/api/reports/utilization" }
+      }
+    },
+    {
+      "name": "10. AI - Goal-Driven Staffing Advice",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"demandId\": 1,\n  \"goal\": \"Find the highest scoring eligible backend engineer with full capacity and verified Java skills\"\n}"
+        },
+        "url": { "raw": "http://localhost:8080/api/ai/staffing-advice" }
+      }
+    }
+  ]
+}
