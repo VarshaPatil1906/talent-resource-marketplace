@@ -309,4 +309,4 @@ The repository includes executable SQL queries in [database/queries.sql](databas
 ![AI Assistant](src/screenshots/utilization.png)
 
 ### 7. AI Staffing Assistant
-![AI Assistant](src/screenshots/AI-staffing.png)
+![AI Assistant](src/screenshots/AI-taffing.png)
