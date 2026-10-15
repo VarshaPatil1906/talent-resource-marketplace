@@ -289,7 +289,7 @@ The repository includes executable SQL queries in [database/queries.sql](databas
 ![Allocation Approval](src/screenshots/Approval.png)
 
 ### 6. Utilization Dashboard
-![AI Assistant](src/screenshots/utilization.png)
+![AI Assistant](src/screenshots/Utilization.png)
 
 ### 7. AI Staffing Assistant
 ![AI Assistant](src/screenshots/AI-staffing.png)
