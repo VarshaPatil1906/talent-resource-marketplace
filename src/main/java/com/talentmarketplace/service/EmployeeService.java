@@ -99,8 +99,12 @@ public class EmployeeService {
         EmployeeSkill employeeSkill;
         if (existingOpt.isPresent()) {
             employeeSkill = existingOpt.get();
-            employeeSkill.setProficiencyLevel(request.getProficiencyLevel());
-            employeeSkill.setLastValidatedAt(request.getLastValidatedAt() != null ? request.getLastValidatedAt() : LocalDate.now());
+            if (request.getProficiencyLevel() != null) {
+                employeeSkill.setProficiencyLevel(request.getProficiencyLevel());
+            }
+            if (request.getLastValidatedAt() != null) {
+                employeeSkill.setLastValidatedAt(request.getLastValidatedAt());
+            }
         } else {
             employeeSkill = new EmployeeSkill(
                     employee,

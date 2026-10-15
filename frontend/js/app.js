@@ -645,7 +645,11 @@ const App = (() => {
             if (modalTitle) modalTitle.textContent = 'Add / Update Employee Skill';
 
             const skillSelect = document.getElementById('modalSkillSelect');
-            if (skillSelect && skillSelect.options.length > 0) skillSelect.selectedIndex = 0;
+            if (skillSelect) {
+                skillSelect.disabled = false;
+                delete skillSelect.dataset.skillId;
+                if (skillSelect.options.length > 0) skillSelect.selectedIndex = 0;
+            }
             const profSelect = document.getElementById('modalProficiencySelect');
             if (profSelect) profSelect.value = '3';
             const dateInput = document.getElementById('modalValidationDate');
@@ -655,7 +659,14 @@ const App = (() => {
         });
 
         [btnCloseModal, btnCancelModal].forEach(btn => {
-            btn?.addEventListener('click', () => addSkillModal.classList.add('hidden'));
+            btn?.addEventListener('click', () => {
+                const skillSelect = document.getElementById('modalSkillSelect');
+                if (skillSelect) {
+                    skillSelect.disabled = false;
+                    delete skillSelect.dataset.skillId;
+                }
+                addSkillModal.classList.add('hidden');
+            });
         });
 
         addSkillForm?.addEventListener('submit', async (e) => {
@@ -670,7 +681,8 @@ const App = (() => {
                 return;
             }
 
-            const skillId = document.getElementById('modalSkillSelect')?.value;
+            const skillSelect = document.getElementById('modalSkillSelect');
+            const skillId = skillSelect?.value || skillSelect?.dataset?.skillId;
             if (!skillId) {
                 showToast('Please select a skill.', 'error');
                 return;
@@ -678,13 +690,28 @@ const App = (() => {
             const proficiencyLevel = parseInt(document.getElementById('modalProficiencySelect').value, 10);
             const lastValidatedAt = document.getElementById('modalValidationDate').value || null;
 
+            const btnSubmit = addSkillForm.querySelector('button[type="submit"]');
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = 'Saving...';
+            }
+
             try {
                 await API.addEmployeeSkill(empId, { skillId: parseInt(skillId, 10), proficiencyLevel, lastValidatedAt });
                 showToast('Skill assessment saved successfully!');
+                if (skillSelect) {
+                    skillSelect.disabled = false;
+                    delete skillSelect.dataset.skillId;
+                }
                 addSkillModal.classList.add('hidden');
-                loadSkillsMatrix();
+                await loadSkillsMatrix();
             } catch (err) {
-                showToast(err.message, 'error');
+                showToast(err.message || 'Failed to save skill assessment', 'error');
+            } finally {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = 'Save Skill Assessment';
+                }
             }
         });
 
@@ -921,7 +948,11 @@ const App = (() => {
         if (modalTitle) modalTitle.textContent = `Add Skill for ${empName}`;
 
         const skillSelect = document.getElementById('modalSkillSelect');
-        if (skillSelect && skillSelect.options.length > 0) skillSelect.selectedIndex = 0;
+        if (skillSelect) {
+            skillSelect.disabled = false;
+            delete skillSelect.dataset.skillId;
+            if (skillSelect.options.length > 0) skillSelect.selectedIndex = 0;
+        }
         const profSelect = document.getElementById('modalProficiencySelect');
         if (profSelect) profSelect.value = '3';
         const dateInput = document.getElementById('modalValidationDate');
@@ -957,7 +988,11 @@ const App = (() => {
         if (modalTitle) modalTitle.textContent = `Edit Skill: ${skillName} (${empName})`;
 
         const skillSelect = document.getElementById('modalSkillSelect');
-        if (skillSelect) skillSelect.value = skillId;
+        if (skillSelect) {
+            skillSelect.value = skillId;
+            skillSelect.dataset.skillId = skillId;
+            skillSelect.disabled = true;
+        }
         const profSelect = document.getElementById('modalProficiencySelect');
         if (profSelect) profSelect.value = proficiency || 3;
         const dateInput = document.getElementById('modalValidationDate');

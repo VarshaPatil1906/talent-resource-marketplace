@@ -3,6 +3,7 @@ package com.talentmarketplace;
 import com.talentmarketplace.dto.AllocationDto;
 import com.talentmarketplace.dto.DemandDto;
 import com.talentmarketplace.dto.EmployeeDto;
+import com.talentmarketplace.dto.EmployeeSkillDto;
 import com.talentmarketplace.dto.StaffingAdviceRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -244,5 +245,158 @@ class ApiIntegrationTest {
             assertEquals("Engineering", map.get("department"));
             assertEquals("ACTIVE", map.get("employmentStatus"));
         }
+    }
+
+    @Test
+    @DisplayName("Skills Matrix: Updating proficiency level only persists new level and preserves existing validation date")
+    void testUpdateSkillAssessment_ProficiencyLevelOnly() {
+        TestRestTemplate managerClient = restTemplate.withBasicAuth("manager", "password123");
+
+        // 1. Fetch employee 1 (Alice Johnson) before update
+        ResponseEntity<EmployeeDto> beforeResp = managerClient.getForEntity(
+                getBaseUrl() + "/api/employees/1", EmployeeDto.class
+        );
+        assertEquals(HttpStatus.OK, beforeResp.getStatusCode());
+        assertNotNull(beforeResp.getBody());
+        EmployeeSkillDto initialJavaSkill = beforeResp.getBody().getSkills().stream()
+                .filter(s -> "Java".equalsIgnoreCase(s.getSkillName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Alice must have initial Java skill"));
+
+        LocalDate initialDate = initialJavaSkill.getLastValidatedAt();
+        assertNotNull(initialDate, "Alice's Java skill should have an initial validation date");
+
+        // 2. Change proficiency level only (e.g. from 5 to 4 or 3)
+        int newProficiency = (initialJavaSkill.getProficiencyLevel() != null && initialJavaSkill.getProficiencyLevel() == 4) ? 3 : 4;
+        EmployeeSkillDto.AddRequest updateReq = new EmployeeSkillDto.AddRequest();
+        updateReq.setSkillId(initialJavaSkill.getSkillId());
+        updateReq.setProficiencyLevel(newProficiency);
+        // lastValidatedAt is intentionally omitted / null
+
+        ResponseEntity<EmployeeSkillDto> updateResp = managerClient.postForEntity(
+                getBaseUrl() + "/api/employees/1/skills", updateReq, EmployeeSkillDto.class
+        );
+        assertEquals(HttpStatus.CREATED, updateResp.getStatusCode());
+        assertNotNull(updateResp.getBody());
+        assertEquals(newProficiency, updateResp.getBody().getProficiencyLevel());
+        assertEquals(initialDate, updateResp.getBody().getLastValidatedAt(),
+                "Updating proficiency only must preserve the existing validation date");
+
+        // 3. Re-fetch employee 1 and verify persistence
+        ResponseEntity<EmployeeDto> afterResp = managerClient.getForEntity(
+                getBaseUrl() + "/api/employees/1", EmployeeDto.class
+        );
+        assertEquals(HttpStatus.OK, afterResp.getStatusCode());
+        EmployeeSkillDto persistedJava = afterResp.getBody().getSkills().stream()
+                .filter(s -> "Java".equalsIgnoreCase(s.getSkillName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Alice must have Java skill"));
+
+        assertEquals(newProficiency, persistedJava.getProficiencyLevel(),
+                "Persisted proficiency level must match the updated value upon refetch");
+        assertEquals(initialDate, persistedJava.getLastValidatedAt(),
+                "Persisted validation date must remain unchanged upon refetch");
+    }
+
+    @Test
+    @DisplayName("Skills Matrix: Updating assessment date only persists new date and preserves existing proficiency level")
+    void testUpdateSkillAssessment_ValidationDateOnly() {
+        TestRestTemplate managerClient = restTemplate.withBasicAuth("manager", "password123");
+
+        // 1. Fetch employee 1 before update
+        ResponseEntity<EmployeeDto> beforeResp = managerClient.getForEntity(
+                getBaseUrl() + "/api/employees/1", EmployeeDto.class
+        );
+        assertEquals(HttpStatus.OK, beforeResp.getStatusCode());
+        EmployeeSkillDto currentJava = beforeResp.getBody().getSkills().stream()
+                .filter(s -> "Java".equalsIgnoreCase(s.getSkillName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Alice must have Java skill"));
+
+        Integer currentProficiency = currentJava.getProficiencyLevel();
+        assertNotNull(currentProficiency, "Existing proficiency level must not be null before test");
+
+        // 2. Change assessment validation date only
+        LocalDate newDate = LocalDate.of(2026, 11, 28);
+        EmployeeSkillDto.AddRequest updateReq = new EmployeeSkillDto.AddRequest();
+        updateReq.setSkillId(currentJava.getSkillId());
+        updateReq.setLastValidatedAt(newDate);
+        // proficiencyLevel is intentionally omitted / null
+
+        ResponseEntity<EmployeeSkillDto> updateResp = managerClient.postForEntity(
+                getBaseUrl() + "/api/employees/1/skills", updateReq, EmployeeSkillDto.class
+        );
+        assertEquals(HttpStatus.CREATED, updateResp.getStatusCode());
+        assertNotNull(updateResp.getBody());
+        assertEquals(newDate, updateResp.getBody().getLastValidatedAt());
+        assertEquals(currentProficiency, updateResp.getBody().getProficiencyLevel(),
+                "Updating validation date only must preserve the existing proficiency level");
+
+        // 3. Re-fetch employee 1 and verify persistence
+        ResponseEntity<EmployeeDto> afterResp = managerClient.getForEntity(
+                getBaseUrl() + "/api/employees/1", EmployeeDto.class
+        );
+        assertEquals(HttpStatus.OK, afterResp.getStatusCode());
+        EmployeeSkillDto persistedJava = afterResp.getBody().getSkills().stream()
+                .filter(s -> "Java".equalsIgnoreCase(s.getSkillName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Alice must have Java skill"));
+
+        assertEquals(newDate, persistedJava.getLastValidatedAt(),
+                "Persisted validation date must match the updated value upon refetch");
+        assertEquals(currentProficiency, persistedJava.getProficiencyLevel(),
+                "Persisted proficiency level must remain unchanged upon refetch");
+    }
+
+    @Test
+    @DisplayName("Skills Matrix: Updating both proficiency level and assessment date persists both values together without duplicate records")
+    void testUpdateSkillAssessment_BothProficiencyAndDate() {
+        TestRestTemplate adminClient = restTemplate.withBasicAuth("admin", "password123");
+
+        // 1. Fetch employee 1 before update
+        ResponseEntity<EmployeeDto> beforeResp = adminClient.getForEntity(
+                getBaseUrl() + "/api/employees/1", EmployeeDto.class
+        );
+        assertEquals(HttpStatus.OK, beforeResp.getStatusCode());
+        int initialSkillCount = beforeResp.getBody().getSkills().size();
+        EmployeeSkillDto currentJava = beforeResp.getBody().getSkills().stream()
+                .filter(s -> "Java".equalsIgnoreCase(s.getSkillName()))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Alice must have Java skill"));
+
+        // 2. Change both fields together
+        int newProficiency = 5;
+        LocalDate newDate = LocalDate.of(2026, 12, 15);
+        EmployeeSkillDto.AddRequest updateReq = new EmployeeSkillDto.AddRequest();
+        updateReq.setSkillId(currentJava.getSkillId());
+        updateReq.setProficiencyLevel(newProficiency);
+        updateReq.setLastValidatedAt(newDate);
+
+        ResponseEntity<EmployeeSkillDto> updateResp = adminClient.postForEntity(
+                getBaseUrl() + "/api/employees/1/skills", updateReq, EmployeeSkillDto.class
+        );
+        assertEquals(HttpStatus.CREATED, updateResp.getStatusCode());
+        assertNotNull(updateResp.getBody());
+        assertEquals(newProficiency, updateResp.getBody().getProficiencyLevel());
+        assertEquals(newDate, updateResp.getBody().getLastValidatedAt());
+
+        // 3. Re-fetch employee 1 and verify persistence
+        ResponseEntity<EmployeeDto> afterResp = adminClient.getForEntity(
+                getBaseUrl() + "/api/employees/1", EmployeeDto.class
+        );
+        assertEquals(HttpStatus.OK, afterResp.getStatusCode());
+        assertEquals(initialSkillCount, afterResp.getBody().getSkills().size(),
+                "Updating an existing skill assessment must not create duplicate records");
+
+        List<EmployeeSkillDto> matchingJavaSkills = afterResp.getBody().getSkills().stream()
+                .filter(s -> "Java".equalsIgnoreCase(s.getSkillName()))
+                .toList();
+        assertEquals(1, matchingJavaSkills.size(), "Must have exactly 1 Java assessment record");
+
+        EmployeeSkillDto persistedJava = matchingJavaSkills.get(0);
+        assertEquals(newProficiency, persistedJava.getProficiencyLevel(),
+                "Persisted proficiency level must match new value");
+        assertEquals(newDate, persistedJava.getLastValidatedAt(),
+                "Persisted validation date must match new value");
     }
 }
