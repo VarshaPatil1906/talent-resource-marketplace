@@ -294,22 +294,19 @@ The repository includes executable SQL queries in [database/queries.sql](databas
 ![Dashboard](src/screenshots/dashboard.png)
 
 ### 2. Skills Matrix
-![Skills Matrix](src/screenshots/skills-matrix.png)
+![Skills Matrix](src/screenshots/Skill-matrix.png)
 
-### 3. Demand Intake
-![Demand Intake](src/screenshots/demand-intake.png)
+### 3. Resource Search
+![Resource Search](src/screenshots/Resource-Search.png)
 
-### 4. Resource Search
-![Resource Search](src/screenshots/resource-search.png)
+### 4. Candidate Comparison
+![Candidate Comparison](src/screenshots/Candidate-comparison.png)
 
-### 5. Candidate Comparison
-![Candidate Comparison](src/screenshots/candidate-comparison.png)
+### 5. Allocation Approval
+![Allocation Approval](src/screenshots/Approval.png)
 
-### 6. Allocation Approval
-![Allocation Approval](src/screenshots/allocation-approval.png)
-
-### 7. Utilization Dashboard
+### 6. Utilization Dashboard
 ![AI Assistant](src/screenshots/utilization.png)
 
-### 8. AI Staffing Assistant
-![AI Assistant](src/screenshots/AI staffing.png)
+### 7. AI Staffing Assistant
+![AI Assistant](src/screenshots/AI-staffing.png)
