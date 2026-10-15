@@ -270,3 +270,46 @@ The repository includes executable SQL queries in [database/queries.sql](databas
 - **Port 8080 in use?** Change `SERVER_PORT=8081` in `.env` or run with `-Dserver.port=8081`.
 - **Java version warning?** The application uses release 17 bytecode compatibility, compiling cleanly under Java 17 and Java 25 LTS.
 - **AI Agent Label:** The interface displays *"Simulated AI Staffing Agent — no live LLM connected"* by default, ensuring full transparency while keeping all 6 backend tools strictly active.
+
+## Application Screenshots
+
+### 1. Dashboard
+![Dashboard](src/screenshots/dashboard.png)
+
+### 2. Skills Matrix
+![Skills Matrix](src/screenshots/Skill matrix.png)
+
+### 3. Resource Search
+![Resource Search](src/screenshots/Resource Search.png)
+
+### 4. Candidate Comparison
+![Candidate Comparison](src/screenshots/Candidate comparison.png)
+
+### 5. Allocation Approval
+![Allocation Approval](src/screenshots/Approval.png)
+
+## Application Screenshots
+
+### 1. Dashboard
+![Dashboard](src/screenshots/dashboard.png)
+
+### 2. Skills Matrix
+![Skills Matrix](src/screenshots/skills-matrix.png)
+
+### 3. Demand Intake
+![Demand Intake](src/screenshots/demand-intake.png)
+
+### 4. Resource Search
+![Resource Search](src/screenshots/resource-search.png)
+
+### 5. Candidate Comparison
+![Candidate Comparison](src/screenshots/candidate-comparison.png)
+
+### 6. Allocation Approval
+![Allocation Approval](src/screenshots/allocation-approval.png)
+
+### 7. Utilization Dashboard
+![AI Assistant](src/screenshots/utilization.png)
+
+### 8. AI Staffing Assistant
+![AI Assistant](src/screenshots/AI staffing.png)
