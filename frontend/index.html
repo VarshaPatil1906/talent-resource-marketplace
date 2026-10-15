@@ -30,6 +30,7 @@
                         <option value="recruiter">Recruiter (recruiter / password123)</option>
                         <option value="admin">Admin (admin / password123)</option>
                     </select>
+                    <span id="activeRoleBadge" class="badge badge-manager">MANAGER</span>
                 </div>
                 <div class="system-status">
                     <span class="status-indicator"></span>
@@ -94,17 +95,41 @@
                     <div class="screen-header">
                         <div>
                             <h2>Project Demand Intake</h2>
-                            <p class="subtitle">Submit new talent requirements with explicit mandatory skills and minimum proficiency levels.</p>
+                            <p id="screen1Subtitle" class="subtitle">Submit new talent requirements with explicit mandatory skills and minimum proficiency levels.</p>
                         </div>
                     </div>
 
-                    <div class="grid-2-col">
-                        <!-- Demand Form Card -->
-                        <div class="card">
+                    <div class="grid-2-col" id="demandGridContainer">
+                        <!-- Demand Form / Overview Card -->
+                        <div class="card" id="demandFormCard">
                             <div class="card-header">
-                                <h3>New Demand Specification</h3>
+                                <h3 id="demandFormCardTitle">New Demand Specification</h3>
                             </div>
                             <div class="card-body">
+                                <div id="demandReadOnlySummary" class="demand-readonly-summary hidden">
+                                    <div id="demandRoleNotice" class="role-restriction-notice info"></div>
+                                    <div class="admin-overview-card">
+                                        <h4 id="demandSummaryHeading">📋 Project Demands Status</h4>
+                                        <p id="demandSummaryDesc" class="text-muted" style="font-size: 0.85rem; margin-bottom: 0.75rem;">
+                                            Inspect project staffing demand parameters, target dates, capacity allocations, and required skill criteria.
+                                        </p>
+                                        <div class="demand-stats-row">
+                                            <div class="stat-chip">
+                                                <span class="stat-number" id="statTotalDemands">--</span>
+                                                <span class="stat-label">Total Demands</span>
+                                            </div>
+                                            <div class="stat-chip">
+                                                <span class="stat-number" id="statOpenDemands">--</span>
+                                                <span class="stat-label">Open Demands</span>
+                                            </div>
+                                            <div class="stat-chip">
+                                                <span class="stat-number" id="statStaffedDemands">--</span>
+                                                <span class="stat-label">Staffed</span>
+                                            </div>
+                                        </div>
+                                        <div id="demandRoleGuide" class="role-action-guide"></div>
+                                    </div>
+                                </div>
                                 <form id="demandIntakeForm">
                                     <div class="form-group">
                                         <label for="projectName">Project Name <span class="required">*</span></label>
@@ -205,9 +230,13 @@
                     <div class="screen-header flex-between">
                         <div>
                             <h2>Employee Skills Matrix</h2>
-                            <p class="subtitle">Search, inspect proficiency levels (1 to 5), and review validation dates across synthetic resources.</p>
+                            <p id="screen2Subtitle" class="subtitle">Search, inspect proficiency levels (1 to 5), and review validation dates across synthetic resources.</p>
                         </div>
-                        <button id="btnOpenAddSkillModal" class="btn btn-primary">+ Add Employee Skill</button>
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <button id="btnOpenAddEmployeeModal" class="btn btn-outline admin-only-btn" style="display: none;">+ Add Employee</button>
+                            <button id="btnOpenAddTaxonomyModal" class="btn btn-outline admin-only-btn" style="display: none;">+ Define New Skill (Admin Only)</button>
+                            <button id="btnOpenAddSkillModal" class="btn btn-primary">+ Add Employee Skill</button>
+                        </div>
                     </div>
 
                     <!-- Filter Bar -->
@@ -224,8 +253,9 @@
                         <div class="filter-item">
                             <label>Status:</label>
                             <select id="matrixFilterStatus" class="form-control">
-                                <option value="">All Statuses</option>
-                                <option value="ACTIVE" selected>ACTIVE</option>
+                                <option value="" selected>All Statuses</option>
+                                <option value="ALL">ALL</option>
+                                <option value="ACTIVE">ACTIVE</option>
                                 <option value="ON_LEAVE">ON_LEAVE</option>
                                 <option value="INACTIVE">INACTIVE</option>
                             </select>
@@ -266,7 +296,7 @@
                     <div class="screen-header">
                         <div>
                             <h2>Resource Search & Availability Ranking</h2>
-                            <p class="subtitle">Query talent by required capacity, skill proficiency, and dates using inclusive-date availability calculations.</p>
+                            <p id="screen3Subtitle" class="subtitle">Query talent by required capacity, skill proficiency, and dates using inclusive-date availability calculations.</p>
                         </div>
                     </div>
 
@@ -320,12 +350,13 @@
                     <div class="screen-header">
                         <div>
                             <h2>Candidate Comparison & Scoring Breakdown</h2>
-                            <p class="subtitle">Side-by-side evaluation of candidates against a demand with deterministic score breakdowns (0 to 100).</p>
+                            <p id="screen4Subtitle" class="subtitle">Side-by-side evaluation of candidates against a demand with deterministic score breakdowns (0 to 100).</p>
                         </div>
                     </div>
 
                     <div class="card mb-4">
                         <div class="card-body">
+                            <div id="comparisonRoleNotice" class="role-restriction-notice hidden"></div>
                             <div class="form-row align-center">
                                 <div class="form-group flex-2">
                                     <label for="comparisonDemandSelect">Select Target Project Demand:</label>
@@ -355,11 +386,11 @@
                     <div class="screen-header flex-between">
                         <div>
                             <h2>Allocation Approval & Governance Workflow</h2>
-                            <p class="subtitle">Manager-authorized commitment review. Revalidates demand status, skills, and committed capacity at approval time.</p>
+                            <p id="screen5Subtitle" class="subtitle">Manager-authorized commitment review. Revalidates demand status, skills, and committed capacity at approval time.</p>
                         </div>
-                        <div class="auth-pill">
+                        <div class="auth-pill" id="screen5AuthPill">
                             <span class="auth-dot"></span>
-                            <span>Manager Role Required for Commit</span>
+                            <span id="screen5AuthText">Manager Role Required for Commit</span>
                         </div>
                     </div>
 
@@ -425,7 +456,7 @@
                     <div class="screen-header flex-between">
                         <div>
                             <h2>Utilization & Skill-Gap Dashboard</h2>
-                            <p class="subtitle">Real-time capacity tracking, unstaffed demand alerts, and organizational talent deficit metrics.</p>
+                            <p id="screen6Subtitle" class="subtitle">Real-time capacity tracking, unstaffed demand alerts, and organizational talent deficit metrics.</p>
                         </div>
                         <button id="btnRefreshDashboard" class="btn btn-sm btn-outline">↻ Refresh Dashboard</button>
                     </div>
@@ -533,13 +564,14 @@
                     <div class="screen-header">
                         <div>
                             <h2>Goal-Driven Staffing Agent</h2>
-                            <p class="subtitle">Direct the autonomous staffing workflow to discover candidates, verify evidence, and formulate actionable proposals.</p>
+                            <p id="screen7Subtitle" class="subtitle">Direct the autonomous staffing workflow to discover candidates, verify evidence, and formulate actionable proposals.</p>
                         </div>
                     </div>
 
                     <!-- AI Goal Input Card -->
                     <div class="card mb-4">
                         <div class="card-body">
+                            <div id="aiRoleNotice" class="role-restriction-notice hidden"></div>
                             <form id="aiAgentForm">
                                 <div class="form-row">
                                     <div class="form-group flex-1">
@@ -619,21 +651,28 @@
         <div id="addSkillModal" class="modal-overlay hidden">
             <div class="modal-box modal-sm">
                 <div class="modal-header">
-                    <h3>Add / Update Employee Skill</h3>
+                    <h3 id="addSkillModalTitle">Add / Update Employee Skill</h3>
                     <button id="btnCloseAddSkillModal" class="btn-close">&times;</button>
                 </div>
                 <div class="modal-body">
                     <form id="addSkillForm">
-                        <div class="form-group">
-                            <label>Employee <span class="required">*</span></label>
+                        <!-- Global mode: dropdown selector -->
+                        <div class="form-group" id="modalEmployeeSelectGroup">
+                            <label for="modalEmployeeSelect">Employee <span class="required">*</span></label>
                             <select id="modalEmployeeSelect" class="form-control" required></select>
                         </div>
+                        <!-- Row-specific mode: read-only display -->
+                        <div class="form-group hidden" id="modalEmployeeReadOnlyGroup">
+                            <label>Employee (Row Selection)</label>
+                            <div class="form-control-static" id="modalEmployeeReadOnlyText" style="padding: 0.6rem 0.85rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-weight: 600; color: var(--text-primary);"></div>
+                            <input type="hidden" id="modalEmployeeIdHidden">
+                        </div>
                         <div class="form-group">
-                            <label>Skill <span class="required">*</span></label>
+                            <label for="modalSkillSelect">Skill <span class="required">*</span></label>
                             <select id="modalSkillSelect" class="form-control" required></select>
                         </div>
                         <div class="form-group">
-                            <label>Proficiency Level (1 to 5) <span class="required">*</span></label>
+                            <label for="modalProficiencySelect">Proficiency Level (1 to 5) <span class="required">*</span></label>
                             <select id="modalProficiencySelect" class="form-control" required>
                                 <option value="1">Level 1 - Fundamental Awareness</option>
                                 <option value="2">Level 2 - Novice / Working Knowledge</option>
@@ -643,7 +682,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Assessment Validation Date</label>
+                            <label for="modalValidationDate">Assessment Validation Date</label>
                             <input type="date" id="modalValidationDate" class="form-control">
                         </div>
                         <div class="form-actions mt-3">
@@ -651,6 +690,170 @@
                             <button type="button" id="btnCancelAddSkillModal" class="btn btn-outline">Cancel</button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Skill Taxonomy Modal (Admin Only) -->
+        <div id="addTaxonomyModal" class="modal-overlay hidden">
+            <div class="modal-box modal-sm">
+                <div class="modal-header">
+                    <h3>Define New Skill (Admin Only)</h3>
+                    <button id="btnCloseAddTaxonomyModal" class="btn-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTaxonomyForm">
+                        <div class="form-group">
+                            <label>Skill Name <span class="required">*</span></label>
+                            <input type="text" id="taxonomySkillName" class="form-control" placeholder="e.g. Kotlin, Rust, GraphQL" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Category <span class="required">*</span></label>
+                            <select id="taxonomyCategorySelect" class="form-control" required>
+                                <option value="Backend">Backend</option>
+                                <option value="Frontend">Frontend</option>
+                                <option value="Cloud">Cloud</option>
+                                <option value="DevOps">DevOps</option>
+                                <option value="Data">Data</option>
+                                <option value="Architecture">Architecture</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="taxonomyDescription" class="form-control" rows="2" placeholder="Brief skill description..."></textarea>
+                        </div>
+                        <div class="form-actions mt-3">
+                            <button type="submit" class="btn btn-primary">Create Skill</button>
+                            <button type="button" id="btnCancelAddTaxonomyModal" class="btn btn-outline">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Employee Modal (Admin Only) -->
+        <div id="addEmployeeModal" class="modal-overlay hidden">
+            <div class="modal-box modal-sm">
+                <div class="modal-header">
+                    <h3>Add New Employee</h3>
+                    <button id="btnCloseAddEmployeeModal" class="btn-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="addEmployeeForm">
+                        <div class="form-group">
+                            <label for="empModalCode">Employee Code <span class="required">*</span></label>
+                            <input type="text" id="empModalCode" class="form-control" placeholder="e.g. EMP011" required>
+                            <small class="text-muted" style="font-size: 0.75rem;">Unique corporate employee identifier.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="empModalName">Full Name <span class="required">*</span></label>
+                            <input type="text" id="empModalName" class="form-control" placeholder="e.g. Elena Rostova" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="empModalDept">Department <span class="required">*</span></label>
+                            <select id="empModalDept" class="form-control" required>
+                                <option value="Engineering" selected>Engineering</option>
+                                <option value="Data & AI">Data & AI</option>
+                                <option value="Cloud & Platform">Cloud & Platform</option>
+                                <option value="Product & Design">Product & Design</option>
+                                <option value="Quality Assurance">Quality Assurance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="empModalLocation">Location <span class="required">*</span></label>
+                            <select id="empModalLocation" class="form-control" required>
+                                <option value="London" selected>London</option>
+                                <option value="New York">New York</option>
+                                <option value="Bangalore">Bangalore</option>
+                                <option value="San Francisco">San Francisco</option>
+                                <option value="Remote">Remote</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="empModalStatus">Employment Status <span class="required">*</span></label>
+                            <select id="empModalStatus" class="form-control" required>
+                                <option value="ACTIVE" selected>ACTIVE</option>
+                                <option value="ON_LEAVE">ON_LEAVE</option>
+                                <option value="INACTIVE">INACTIVE</option>
+                            </select>
+                        </div>
+                        <div class="form-actions mt-3">
+                            <button type="submit" id="btnSubmitAddEmployee" class="btn btn-primary">Create Employee</button>
+                            <button type="button" id="btnCancelAddEmployeeModal" class="btn btn-outline">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demand Specification Details Modal (Admin View) -->
+        <div id="demandDetailsModal" class="modal-overlay hidden">
+            <div class="modal-box">
+                <div class="modal-header">
+                    <div>
+                        <h3 id="demandModalTitle">Project Demand Specification</h3>
+                        <div class="text-muted" id="demandModalSubtitle" style="font-size: 0.8rem;">Demand Criteria & Skill Requirements</div>
+                    </div>
+                    <button id="btnCloseDemandModal" class="btn-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-grid mb-4">
+                        <div class="detail-item">
+                            <span class="detail-label">Project Name</span>
+                            <strong id="demandModalProjectName" class="detail-value">--</strong>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Target Role</span>
+                            <span id="demandModalRole" class="detail-value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Location</span>
+                            <span id="demandModalLocation" class="detail-value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Required Capacity</span>
+                            <strong id="demandModalCapacity" class="detail-value text-accent">--%</strong>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Start Date</span>
+                            <span id="demandModalStartDate" class="detail-value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">End Date</span>
+                            <span id="demandModalEndDate" class="detail-value">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Priority Level</span>
+                            <span id="demandModalPriority">--</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Staffing Status</span>
+                            <span id="demandModalStatus">--</span>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 600;">Explicit Skill Requirements & Minimum Proficiencies</h4>
+                    <div class="table-container mb-3">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Skill</th>
+                                    <th>Type</th>
+                                    <th>Min Required Proficiency</th>
+                                </tr>
+                            </thead>
+                            <tbody id="demandModalSkillsTbody">
+                                <tr><td colspan="3" class="text-center py-2">Loading skills...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="role-restriction-notice info" style="margin-bottom: 0;">
+                        <span>👁️ <strong>Admin Specification Audit:</strong> This read-only view allows administrators to inspect demand criteria, target delivery dates, and required competencies. Recruiters and Managers can evaluate candidate matches for this demand.</span>
+                    </div>
+                </div>
+                <div class="modal-footer" style="padding: 0.75rem 1.25rem; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end;">
+                    <button type="button" id="btnDismissDemandModal" class="btn btn-outline">Close</button>
                 </div>
             </div>
         </div>

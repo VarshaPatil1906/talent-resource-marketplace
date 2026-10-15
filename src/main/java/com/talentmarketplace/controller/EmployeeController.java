@@ -30,8 +30,16 @@ public class EmployeeController {
     @GetMapping
     public ResponseEntity<List<EmployeeDto>> getAllEmployees(
             @RequestParam(required = false) String department,
-            @RequestParam(required = false) Employee.EmploymentStatus status) {
-        List<EmployeeDto> employees = employeeService.getAllEmployees(department, status);
+            @RequestParam(required = false) String status) {
+        Employee.EmploymentStatus employmentStatus = null;
+        if (status != null && !status.isBlank() && !status.equalsIgnoreCase("ALL")) {
+            try {
+                employmentStatus = Employee.EmploymentStatus.valueOf(status.trim().toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                // Ignore unrecognized status to prevent 500/400 errors, treating as all
+            }
+        }
+        List<EmployeeDto> employees = employeeService.getAllEmployees(department, employmentStatus);
         return ResponseEntity.ok(employees);
     }
 

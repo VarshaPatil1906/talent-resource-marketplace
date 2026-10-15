@@ -289,13 +289,15 @@ body {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    overflow: hidden;
+    position: relative;
 }
 
 .card-header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--border-color);
     background-color: var(--bg-card-alt);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
 }
 
 .card-header h3 {
@@ -310,11 +312,16 @@ body {
 /* Grid Layouts */
 .grid-2-col {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
     gap: 1.5rem;
+    align-items: start;
 }
 
-@media (max-width: 1024px) {
+.grid-2-col > * {
+    min-width: 0;
+}
+
+@media (max-width: 1180px) {
     .grid-2-col {
         grid-template-columns: 1fr;
     }
@@ -363,6 +370,19 @@ body {
 
 select.form-control {
     cursor: pointer;
+    background-color: #111827;
+    color: #f8fafc;
+}
+
+select.form-control option {
+    background-color: #1e293b;
+    color: #f8fafc;
+    padding: 8px 12px;
+}
+
+select.form-control option:disabled {
+    color: #64748b;
+    background-color: #0f172a;
 }
 
 .select-sm {
@@ -490,6 +510,24 @@ select.form-control {
     font-size: 0.65rem;
 }
 
+.badge-manager {
+    background-color: rgba(99, 102, 241, 0.2);
+    color: #818cf8;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.badge-recruiter {
+    background-color: rgba(14, 165, 233, 0.2);
+    color: #38bdf8;
+    border: 1px solid rgba(14, 165, 233, 0.4);
+}
+
+.badge-admin {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(236, 72, 153, 0.25) 100%);
+    color: #f472b6;
+    border: 1px solid rgba(244, 114, 182, 0.4);
+}
+
 /* Skill pills with proficiency */
 .skill-pill {
     display: inline-flex;
@@ -503,6 +541,17 @@ select.form-control {
     margin: 0.15rem;
 }
 
+.skill-pill.clickable {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.skill-pill.clickable:hover {
+    border-color: var(--primary);
+    background-color: rgba(99, 102, 241, 0.15);
+    transform: translateY(-1px);
+}
+
 .proficiency-stars {
     color: #fbbf24;
     font-weight: 700;
@@ -512,6 +561,23 @@ select.form-control {
 /* Tables */
 .table-container {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+}
+
+.table-container::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: var(--radius-full);
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: var(--border-light);
+    border-radius: var(--radius-full);
 }
 
 .data-table {
@@ -522,17 +588,19 @@ select.form-control {
 
 .data-table th {
     background-color: var(--bg-surface);
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 0.85rem;
     text-align: left;
     font-weight: 600;
     color: var(--text-secondary);
     border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
 }
 
 .data-table td {
-    padding: 0.75rem 1rem;
+    padding: 0.65rem 0.85rem;
     border-bottom: 1px solid var(--border-color);
     color: var(--text-primary);
+    vertical-align: middle;
 }
 
 .data-table tbody tr:hover {
@@ -546,6 +614,7 @@ select.form-control {
     border-radius: var(--radius-sm);
     padding: 0.85rem;
     margin-bottom: 1rem;
+    overflow: visible;
 }
 
 .skills-spec-header {
@@ -555,11 +624,61 @@ select.form-control {
     margin-bottom: 0.75rem;
 }
 
+.demand-skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    overflow: visible;
+}
+
 .skill-spec-row {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.02);
+    padding: 0.45rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    flex-wrap: wrap;
+}
+
+.skill-spec-row .skill-name-select {
+    flex: 2;
+    min-width: 170px;
+}
+
+.skill-spec-row .skill-prof-select {
+    flex: 1;
+    min-width: 115px;
+}
+
+.skill-mandatory-label {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+    user-select: none;
+    color: var(--text-secondary);
+    margin-left: 0.25rem;
+}
+
+.skill-mandatory-check {
+    accent-color: var(--primary);
+    cursor: pointer;
+    width: 15px;
+    height: 15px;
+}
+
+.skill-empty-state {
+    padding: 0.85rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--border-color);
 }
 
 /* Filter Bar */
@@ -867,3 +986,153 @@ select.form-control {
 .mb-4 { margin-bottom: 1.25rem; }
 .text-center { text-align: center; }
 .py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+
+/* Role Restriction Notices */
+.role-restriction-notice {
+    padding: 0.85rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    line-height: 1.45;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: var(--text-primary);
+}
+
+.role-restriction-notice.warning {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.35);
+    color: #fde68a;
+}
+
+.role-restriction-notice.info {
+    background: rgba(14, 165, 233, 0.1);
+    border-color: rgba(14, 165, 233, 0.35);
+    color: #bae6fd;
+}
+
+.role-restriction-notice strong {
+    color: #fff;
+}
+
+.form-disabled-overlay {
+    opacity: 0.65;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Demand Intake: Admin & Manager Mode Layout */
+#demandGridContainer.admin-mode {
+    grid-template-columns: minmax(0, 360px) minmax(0, 1.4fr);
+}
+
+@media (max-width: 1080px) {
+    #demandGridContainer.admin-mode {
+        grid-template-columns: 1fr;
+    }
+}
+
+.demand-readonly-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.admin-overview-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+}
+
+.demand-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin: 1rem 0;
+}
+
+.stat-chip {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stat-number {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.role-action-guide {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.825rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.role-action-guide strong {
+    color: var(--text-primary);
+}
+
+/* Demand Details Specification Modal */
+.detail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.75rem;
+}
+
+.detail-item {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detail-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+
+.detail-value {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.admin-view-btn {
+    color: #f472b6 !important;
+    border-color: rgba(244, 114, 182, 0.4) !important;
+    background: rgba(244, 114, 182, 0.1) !important;
+}
+
+.admin-view-btn:hover {
+    background: rgba(244, 114, 182, 0.25) !important;
+    border-color: rgba(244, 114, 182, 0.7) !important;
+}
+

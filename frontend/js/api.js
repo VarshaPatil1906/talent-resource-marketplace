@@ -1,21 +1,26 @@
 /**
  * Talent & Resource Allocation Marketplace - API Client
+ * Manages authenticated HTTP requests, server-side session sync, and role permissions.
  */
 
 const API = (() => {
     const BASE_URL = '/api';
 
-    const getAuthHeaders = () => {
-        const role = document.getElementById('userRoleSelect')?.value || 'manager';
-        let credentials = 'manager:password123';
-        if (role === 'recruiter') credentials = 'recruiter:password123';
-        if (role === 'admin') credentials = 'admin:password123';
+    let currentUsername = 'manager';
+    let currentPassword = 'password123';
+    let currentUser = null;
 
-        return {
-            'Authorization': 'Basic ' + btoa(credentials),
+    const getAuthHeaders = () => {
+        const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };
+
+        if (currentUsername && currentPassword) {
+            headers['Authorization'] = 'Basic ' + btoa(`${currentUsername}:${currentPassword}`);
+        }
+
+        return headers;
     };
 
     const request = async (endpoint, options = {}) => {
@@ -23,7 +28,11 @@ const API = (() => {
         const headers = { ...getAuthHeaders(), ...(options.headers || {}) };
 
         try {
-            const response = await fetch(url, { ...options, headers });
+            const response = await fetch(url, {
+                ...options,
+                headers,
+                credentials: 'same-origin' // Send and receive session cookies (JSESSIONID)
+            });
             
             // Handle non-JSON or empty responses
             if (response.status === 204) return null;
@@ -46,6 +55,37 @@ const API = (() => {
     };
 
     return {
+        // Authentication & Session
+        login: async (username, password) => {
+            currentUsername = username;
+            currentPassword = password;
+            const res = await request('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({ username, password })
+            });
+            currentUser = res;
+            return res;
+        },
+        getCurrentUser: async () => {
+            const res = await request('/auth/me');
+            currentUser = res;
+            return res;
+        },
+        logout: async () => {
+            try {
+                await request('/auth/logout', { method: 'POST' });
+            } finally {
+                currentUser = null;
+                currentUsername = null;
+                currentPassword = null;
+            }
+        },
+        getCurrentUserProfile: () => currentUser,
+        setCredentials: (username, password) => {
+            currentUsername = username;
+            currentPassword = password;
+        },
+
         // Demands
         getDemands: (params = {}) => {
             const query = new URLSearchParams(params).toString();
@@ -62,7 +102,14 @@ const API = (() => {
 
         // Employees & Skills
         getEmployees: (params = {}) => {
-            const query = new URLSearchParams(params).toString();
+            const queryParams = new URLSearchParams();
+            if (params.department && params.department.trim() && params.department.trim().toUpperCase() !== 'ALL') {
+                queryParams.set('department', params.department.trim());
+            }
+            if (params.status && params.status.trim() && params.status.trim().toUpperCase() !== 'ALL') {
+                queryParams.set('status', params.status.trim());
+            }
+            const query = queryParams.toString();
             return request(`/employees${query ? '?' + query : ''}`);
         },
         getEmployeeById: (id) => request(`/employees/${id}`),
@@ -76,6 +123,10 @@ const API = (() => {
         }),
         getEmployeeSkills: (employeeId) => request(`/employees/${employeeId}/skills`),
         getSkills: (category = '') => request(`/skills${category ? '?category=' + category : ''}`),
+        createSkill: (skill) => request('/skills', {
+            method: 'POST',
+            body: JSON.stringify(skill)
+        }),
 
         // Availability Search
         getAvailableResources: (params = {}) => {

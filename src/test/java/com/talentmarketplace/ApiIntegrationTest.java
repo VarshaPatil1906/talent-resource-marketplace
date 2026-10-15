@@ -31,6 +31,11 @@ class ApiIntegrationTest {
         return "http://localhost:" + port;
     }
 
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        restTemplate.getRestTemplate().setRequestFactory(new org.springframework.http.client.JdkClientHttpRequestFactory());
+    }
+
     @Test
     @DisplayName("API: Employees list returns seeded records")
     void testGetEmployees() {
@@ -121,7 +126,7 @@ class ApiIntegrationTest {
         DemandDto.CreateRequest invalidReq = new DemandDto.CreateRequest();
         // Leave required fields blank
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(
+        ResponseEntity<Map> response = restTemplate.withBasicAuth("recruiter", "password123").postForEntity(
                 getBaseUrl() + "/api/demands", invalidReq, Map.class
         );
 
@@ -131,5 +136,113 @@ class ApiIntegrationTest {
         assertTrue(response.getBody().containsKey("fieldErrors"));
         List fieldErrors = (List) response.getBody().get("fieldErrors");
         assertFalse(fieldErrors.isEmpty(), "Field errors list must contain validation failures");
+    }
+
+    @Test
+    @DisplayName("API Filter: Filter employees by status INACTIVE returns only inactive employees")
+    void testFilterEmployeesByStatusInactive() {
+        ResponseEntity<List> response = restTemplate.getForEntity(
+                getBaseUrl() + "/api/employees?status=INACTIVE", List.class
+        );
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isEmpty(), "Must return at least one inactive employee");
+        for (Object item : response.getBody()) {
+            Map map = (Map) item;
+            assertEquals("INACTIVE", map.get("employmentStatus"),
+                    "All employees returned with status=INACTIVE must be INACTIVE");
+        }
+    }
+
+    @Test
+    @DisplayName("API Filter: Filter employees by status ACTIVE returns only active employees")
+    void testFilterEmployeesByStatusActive() {
+        ResponseEntity<List> response = restTemplate.getForEntity(
+                getBaseUrl() + "/api/employees?status=ACTIVE", List.class
+        );
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isEmpty(), "Must return active employees");
+        for (Object item : response.getBody()) {
+            Map map = (Map) item;
+            assertEquals("ACTIVE", map.get("employmentStatus"),
+                    "All employees returned with status=ACTIVE must be ACTIVE");
+        }
+    }
+
+    @Test
+    @DisplayName("API Filter: Filter employees by status ON_LEAVE returns only on-leave employees")
+    void testFilterEmployeesByStatusOnLeave() {
+        ResponseEntity<List> response = restTemplate.getForEntity(
+                getBaseUrl() + "/api/employees?status=ON_LEAVE", List.class
+        );
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertFalse(response.getBody().isEmpty(), "Must return at least one on-leave employee");
+        for (Object item : response.getBody()) {
+            Map map = (Map) item;
+            assertEquals("ON_LEAVE", map.get("employmentStatus"),
+                    "All employees returned with status=ON_LEAVE must be ON_LEAVE");
+        }
+    }
+
+    @Test
+    @DisplayName("API Filter: Filter employees by status ALL returns all employees regardless of status")
+    void testFilterEmployeesByStatusAll() {
+        ResponseEntity<List> response = restTemplate.getForEntity(
+                getBaseUrl() + "/api/employees?status=ALL", List.class
+        );
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().size() >= 10, "Status=ALL must return all employees");
+
+        boolean hasActive = response.getBody().stream().anyMatch(e -> "ACTIVE".equals(((Map) e).get("employmentStatus")));
+        boolean hasInactive = response.getBody().stream().anyMatch(e -> "INACTIVE".equals(((Map) e).get("employmentStatus")));
+        boolean hasOnLeave = response.getBody().stream().anyMatch(e -> "ON_LEAVE".equals(((Map) e).get("employmentStatus")));
+
+        assertTrue(hasActive, "Status=ALL must include ACTIVE employees");
+        assertTrue(hasInactive, "Status=ALL must include INACTIVE employees");
+        assertTrue(hasOnLeave, "Status=ALL must include ON_LEAVE employees");
+    }
+
+    @Test
+    @DisplayName("API Filter: Combined filter by Department AND Status simultaneously")
+    void testCombinedFilterDepartmentAndStatus() {
+        // Engineering + INACTIVE -> Only Ian Wright
+        ResponseEntity<List> engInactiveResp = restTemplate.getForEntity(
+                getBaseUrl() + "/api/employees?department=Engineering&status=INACTIVE", List.class
+        );
+        assertEquals(HttpStatus.OK, engInactiveResp.getStatusCode());
+        assertNotNull(engInactiveResp.getBody());
+        assertEquals(1, engInactiveResp.getBody().size(), "Only Ian Wright is INACTIVE in Engineering");
+        Map ian = (Map) engInactiveResp.getBody().get(0);
+        assertEquals("Engineering", ian.get("department"));
+        assertEquals("INACTIVE", ian.get("employmentStatus"));
+        assertEquals("Ian Wright", ian.get("name"));
+
+        // Engineering + ON_LEAVE -> Only Grace Hopper
+        ResponseEntity<List> engLeaveResp = restTemplate.getForEntity(
+                getBaseUrl() + "/api/employees?department=Engineering&status=ON_LEAVE", List.class
+        );
+        assertEquals(HttpStatus.OK, engLeaveResp.getStatusCode());
+        assertNotNull(engLeaveResp.getBody());
+        assertEquals(1, engLeaveResp.getBody().size(), "Only Grace Hopper is ON_LEAVE in Engineering");
+        Map grace = (Map) engLeaveResp.getBody().get(0);
+        assertEquals("Engineering", grace.get("department"));
+        assertEquals("ON_LEAVE", grace.get("employmentStatus"));
+        assertEquals("Grace Hopper", grace.get("name"));
+
+        // Engineering + ACTIVE -> Alice, Bob, Elena, Frank (4 employees)
+        ResponseEntity<List> engActiveResp = restTemplate.getForEntity(
+                getBaseUrl() + "/api/employees?department=Engineering&status=ACTIVE", List.class
+        );
+        assertEquals(HttpStatus.OK, engActiveResp.getStatusCode());
+        assertNotNull(engActiveResp.getBody());
+        assertTrue(engActiveResp.getBody().size() >= 4, "Must return active engineering employees");
+        for (Object item : engActiveResp.getBody()) {
+            Map map = (Map) item;
+            assertEquals("Engineering", map.get("department"));
+            assertEquals("ACTIVE", map.get("employmentStatus"));
+        }
     }
 }

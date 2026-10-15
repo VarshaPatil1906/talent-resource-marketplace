@@ -34,15 +34,19 @@ public class EmployeeService {
     }
 
     public EmployeeDto createEmployee(EmployeeDto.CreateRequest request) {
-        if (employeeRepository.findByEmployeeCode(request.getEmployeeCode()).isPresent()) {
-            throw new IllegalArgumentException("Employee with code " + request.getEmployeeCode() + " already exists");
+        String code = request.getEmployeeCode() != null ? request.getEmployeeCode().trim() : "";
+        if (code.isEmpty()) {
+            throw new IllegalArgumentException("Employee code cannot be blank");
+        }
+        if (employeeRepository.findByEmployeeCode(code).isPresent()) {
+            throw new IllegalArgumentException("Employee with code " + code + " already exists");
         }
 
         Employee employee = new Employee(
-                request.getEmployeeCode().trim(),
-                request.getName().trim(),
-                request.getLocation().trim(),
-                request.getDepartment().trim(),
+                code,
+                request.getName() != null ? request.getName().trim() : "",
+                request.getLocation() != null ? request.getLocation().trim() : "",
+                request.getDepartment() != null ? request.getDepartment().trim() : "",
                 request.getEmploymentStatus() != null ? request.getEmploymentStatus() : Employee.EmploymentStatus.ACTIVE
         );
 
@@ -53,9 +57,14 @@ public class EmployeeService {
     @Transactional(readOnly = true)
     public List<EmployeeDto> getAllEmployees(String department, Employee.EmploymentStatus status) {
         List<Employee> employees;
-        if (department != null && !department.isBlank()) {
+        boolean hasDept = department != null && !department.isBlank() && !department.equalsIgnoreCase("ALL");
+        boolean hasStatus = status != null;
+
+        if (hasDept && hasStatus) {
+            employees = employeeRepository.findByDepartmentAndEmploymentStatus(department.trim(), status);
+        } else if (hasDept) {
             employees = employeeRepository.findByDepartment(department.trim());
-        } else if (status != null) {
+        } else if (hasStatus) {
             employees = employeeRepository.findByEmploymentStatus(status);
         } else {
             employees = employeeRepository.findAll();

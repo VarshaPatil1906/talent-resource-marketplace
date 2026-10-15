@@ -58,6 +58,10 @@ set ERROR_CODE=0
 @setlocal
 
 @REM ==== START VALIDATION ====
+if "%JAVA_HOME%" == " " set "JAVA_HOME="
+if not "%JAVA_HOME%" == "" if not exist "%JAVA_HOME%\bin\java.exe" set "JAVA_HOME="
+if "%JAVA_HOME%" == "" if exist "C:\Program Files\Eclipse Adoptium\jdk-25.0.4.7-hotspot\bin\java.exe" set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-25.0.4.7-hotspot"
+if "%JAVA_HOME%" == "" for /f "delims=" %%i in ('where java.exe 2^>nul') do if "%JAVA_HOME%" == "" if exist "%%~dpi..\bin\javac.exe" set "JAVA_HOME=%%~dpi.."
 if not "%JAVA_HOME%" == "" goto OkJHome
 
 echo.
